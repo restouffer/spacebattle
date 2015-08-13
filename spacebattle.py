@@ -1,9 +1,7 @@
 #! /usr/bin/env python
 
-import subprocess, curses, sys, os, time
+import curses, sys, os
 from ship import Ship
-from scene import Scene
-from alert import Alert
 from game import Game
 from docopt import docopt
 USAGE_MSG = """Usage: %s PROG1 PROG2
@@ -116,19 +114,19 @@ def space_battle(screen, prog1, prog2):
 	game.intro()
 	game.play()
 	game.outro()
-	time.sleep(0.5)
-
-
-def test_drawing():
-	scene = Scene(200, 200)
-	scene.display(0, 0)
-	alert = Alert('Hello')
-	alert.show(scene)
-	time.sleep(1)
 
 
 if __name__ == "__main__":
 	inputs = docopt(USAGE_MSG)
+
+	if not os.path.isfile(inputs['PROG1']):
+		raise FileNotFoundError('No program named "%s"' % inputs['PROG1'])
+	if not os.access(inputs['PROG1'], os.X_OK):
+		raise PermissionError('"%s" is not executable' % inputs['PROG1'])
+	if not os.path.isfile(inputs['PROG2']):
+		raise FileNotFoundError('No program named "%s"' % inputs['PROG2'])
+	if not os.access(inputs['PROG2'], os.X_OK):
+		raise PermissionError('"%s" is not executable' % inputs['PROG2'])
 
 	try:
 		screen = curses.initscr()
@@ -139,7 +137,6 @@ if __name__ == "__main__":
 		except curses.error:
 			pass
 		curses.start_color()
-		#test_drawing()
 		space_battle(screen, inputs['PROG1'], inputs['PROG2'])
 	finally:
 		curses.echo()

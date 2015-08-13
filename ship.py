@@ -1,8 +1,10 @@
 from drawable import Drawable
-import curses, subprocess, os
+from threading import Timer
+import curses, subprocess, os, random
 
 class Ship(Drawable):
 	'''All of the relevant information about a space battle ship'''
+	delay = 0
 
 	def __init__(self, name, art):
 		Drawable.__init__(self, art)
@@ -13,6 +15,12 @@ class Ship(Drawable):
 
 
 	def set_program(self, path):
+		t = Timer(Ship.delay, self._set_program, args=[path])
+		t.start()
+		Ship.delay += 1
+
+
+	def _set_program(self, path):
 		self.program = subprocess.Popen(
 			'%s/%s' % (os.getcwd(), path),
 			stdin=subprocess.PIPE,

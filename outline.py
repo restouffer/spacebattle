@@ -19,42 +19,43 @@ class Outline(Drawable):
 		for y in range(0, self.height):
 			shadow.append([False] * self.width)
 			for x in range(0, self.width):
-				in_shadow = self.over_shadow(x, y)
-				if in_shadow:
-					if object[y-1][x-1]:
-						continue
-					if x >= 2:
-						if object[y-1][x-2]:
-							shadow[y][x] = True
-					if x < self.width - 2:
-						if object[y-1][x]:
-							shadow[y][x] = True
-				if y >= 2:
-					if x >= 2:
-						if object[y-2][x-2]:
-							shadow[y][x] = True
-					if x < self.width - 2:
-						if object[y-2][x]:
-							shadow[y][x] = True
-					if in_shadow and object[y-2][x-1]:
-						shadow[y][x] = True
-				if y < self.height - 2:
-					if x >= 2:
-						if object[y][x-2]:
-							shadow[y][x] = True
-					if x < self.width - 2:
-						if object[y][x]:
-							shadow[y][x] = True
-					if in_shadow and object[y][x-1]:
-						shadow[y][x] = True
+				if self.is_shadow(x, y, object):
+					continue
+				if self.touching_shadow(x, y, object):
+					shadow[y][x] = True
 
 		return shadow
 
 
-	def over_shadow(self, x, y):
-		if x < 1 or y < 1:
-			return False
-		elif x > self.width - 2 or y > self.height - 2:
+	def is_border(self, x, y):
+		if x <= 0 or y <= 0:
+			return True
+		if x >= self.width - 1 or y >= self.height - 1:
+			return True
+
+		return False
+
+
+	def is_shadow(self, x, y, shadow):
+		if self.is_border(x, y):
 			return False
 
-		return True
+		return shadow[y-1][x-1]
+
+
+	def touching_shadow(self, x, y, shadow):
+		if self.is_shadow(x-1, y-1, shadow):
+			return True
+		if self.is_shadow(x, y-1, shadow):
+			return True
+		if self.is_shadow(x+1, y-1, shadow):
+			return True
+		if self.is_shadow(x-1, y, shadow):
+			return True
+		if self.is_shadow(x+1, y, shadow):
+			return True
+		if self.is_shadow(x-1, y+1, shadow):
+			return True
+		if self.is_shadow(x, y+1, shadow):
+			return True
+		return self.is_shadow(x+1, y+1, shadow)
